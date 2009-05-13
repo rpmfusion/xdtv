@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=XdTV Wizard
+Comment=XdTV Wizard
+Exec=xdtv_wizard
+Icon=xdtv
+Terminal=false
+Type=Application
+Categories=AudioVideo;
