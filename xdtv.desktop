@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=XdTV
+Comment=Capture View & Broadcast Video4Linux Streams
+Comment[fr]=Capturer Visualiser & Diffuser des flux v4l
+Exec=xdtv
+Icon=xdtv
+Terminal=false
+Type=Application
+Categories=AudioVideo;

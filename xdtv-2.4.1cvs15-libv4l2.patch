@@ -1,0 +1,943 @@
+diff -up xdtv-2.4.1cvs15/configure.in.libv4l2 xdtv-2.4.1cvs15/configure.in
+--- xdtv-2.4.1cvs15/configure.in.libv4l2	2009-03-21 12:53:15.000000000 +0100
++++ xdtv-2.4.1cvs15/configure.in	2009-04-08 16:16:13.000000000 +0200
+@@ -4,8 +4,9 @@ dnl ------------------------------------
+ dnl Process this file with autoconf to produce a configure script.
+ dnl ---------------------------------------------------------------------
+ 
+-AC_INIT(src/main.c)
+-AC_PREREQ(2.5)
++AC_INIT
++AC_CONFIG_SRCDIR([src/main.c])
++AC_PREREQ(2.63)
+ 
+ XDTV_MAJOR=2
+ XDTV_MINOR=4
+@@ -19,7 +20,7 @@ AC_SUBST(SPEC_VERSION)
+ 
+ PKG_PROG_PKG_CONFIG
+ AM_INIT_AUTOMAKE("xdtv", $XDTV_MAJOR.$XDTV_MINOR.$XDTV_SUB)
+-AM_CONFIG_HEADER(config.h)
++AC_CONFIG_HEADERS([config.h])
+ 
+ 
+ dnl ---------------------------------------------------------------------
+@@ -191,7 +192,14 @@ AC_C_CONST
+ AC_C_INLINE
+ AC_TYPE_OFF_T
+ AC_TYPE_SIZE_T
+-AC_STRUCT_ST_RDEV
++AC_DIAGNOSE([obsolete],[your code should no longer depend upon `HAVE_ST_RDEV', but
++`HAVE_STRUCT_STAT_ST_RDEV'.  Remove this warning and
++the `AC_DEFINE' when you adjust the code.])dnl
++AC_CHECK_MEMBERS([struct stat.st_rdev],[AC_DEFINE(HAVE_ST_RDEV, 1,
++			    [Define to 1 if your `struct stat' has `st_rdev'.
++			     Deprecated, use `HAVE_STRUCT_STAT_ST_RDEV'
++			     instead.])])
++
+ AC_HEADER_TIME
+ 
+ 
+@@ -213,7 +221,7 @@ if test x$YASM_PROG = xyes; then
+   AC_MSG_CHECKING(for yasm compilation)
+   CFLAGS_sau="$CFLAGS"
+   CFLAGS="$CFLAGS -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112 -fasm -std=c99"
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("pabsw %xmm0, %xmm0") ],,YASM_PROG=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("pabsw %xmm0, %xmm0") ]])],[],[YASM_PROG=no])
+   AC_MSG_RESULT($YASM_PROG)
+   CFLAGS="$CFLAGS_sau"
+ fi
+@@ -346,54 +354,54 @@ if test "x$host_arch" = "xi386" || test 
+ 
+   #mmx assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for MMX support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("emms":::"memory") ],, enable_mmx=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("emms") ],, enable_mmx=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("emms":::"memory") ]])],[],[enable_mmx=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("emms") ]])],[],[enable_mmx=no])
+   AC_MSG_RESULT($enable_mmx)
+ 
+   #mmxext assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for Extended MMX support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("sfence":::"memory") ],, enable_mmxext=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("sfence") ],,enable_mmxext=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("sfence":::"memory") ]])],[],[enable_mmxext=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("sfence") ]])],[],[enable_mmxext=no])
+   AC_MSG_RESULT($enable_mmxext)
+ 
+   #3dnow assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for 3DNOW support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("femms":::"memory") ],,enable_3dnow=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("femms") ],,enable_3dnow=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("femms":::"memory") ]])],[],[enable_3dnow=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("femms") ]])],[],[enable_3dnow=no])
+   AC_MSG_RESULT($enable_3dnow)
+ 
+   #3dnowext assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for Extended 3DNOW support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("pswapd %%mm0, %%mm0":::"memory") ],,enable_3dnowext=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("pswapd %mm0, %mm0") ],,enable_3dnowext=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("pswapd %%mm0, %%mm0":::"memory") ]])],[],[enable_3dnowext=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("pswapd %mm0, %mm0") ]])],[],[enable_3dnowext=no])
+   AC_MSG_RESULT($enable_3dnowext)
+ 
+   #sse assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for SSE support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("xorps %%xmm0, %%xmm0":::"memory") ],,enable_sse=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("xorps %xmm0, %xmm0") ],,enable_sse=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("xorps %%xmm0, %%xmm0":::"memory") ]])],[],[enable_sse=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("xorps %xmm0, %xmm0") ]])],[],[enable_sse=no])
+   AC_MSG_RESULT($enable_sse)
+ 
+   #sse2 assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for SSE2 support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("xorpd %%xmm0, %%xmm0":::"memory") ],,enable_sse2=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("xorpd %xmm0, %xmm0") ],,enable_sse2=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("xorpd %%xmm0, %%xmm0":::"memory") ]])],[],[enable_sse2=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("xorpd %xmm0, %xmm0") ]])],[],[enable_sse2=no])
+   AC_MSG_RESULT($enable_sse2)
+ 
+   #sse3 assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for SSE3 support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("pabsd %%xmm0, %%xmm0":::"memory") ],,enable_sse3=no)
+-  dnl AC_TRY_COMPILE(,[ __asm__ __volatile__ ("pabsd %xmm0, %xmm0") ],,enable_sse3=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("pabsd %%xmm0, %%xmm0":::"memory") ]])],[],[enable_sse3=no])
++  dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("pabsd %xmm0, %xmm0") ]])],[],[enable_sse3=no])
+   AC_MSG_RESULT($enable_sse3)
+ 
+   #ebp assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for EBP support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("xorl %ebp, %ebp"::: "%ebp") ],,enable_ebp=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("xorl %ebp, %ebp"::: "%ebp") ]])],[],[enable_ebp=no])
+   AC_MSG_RESULT($enable_ebp)
+ 
+   #ebx assembler non-compilable -> no assembler
+   AC_MSG_CHECKING(for EBX support with an ASM test)
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("":::"%ebx") ],,enable_ebx=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("":::"%ebx") ]])],[],[enable_ebx=no])
+   AC_MSG_RESULT($enable_ebx)
+ fi
+ 
+@@ -406,7 +414,7 @@ if test "x$host_arch" = "xsparc" || test
+   AC_MSG_CHECKING(for SPARC vis support with an ASM test)
+   CFLAGS_sau="$CFLAGS"
+   CFLAGS="$CFLAGS -mcpu=ultrasparc -mtune=ultrasparc"
+-  AC_TRY_COMPILE(,[ __asm__ __volatile__ ("pdist %f0, %f0, %f0") ],,enable_vis=no)
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ __asm__ __volatile__ ("pdist %f0, %f0, %f0") ]])],[],[enable_vis=no])
+   CFLAGS="$CFLAGS_sau"
+   AC_MSG_RESULT($enable_vis)
+ 
+@@ -712,19 +720,25 @@ dnl video drivers detection
+ case $host_syst in
+   linux) 
+     AC_MSG_CHECKING(for video4linux)
+-    AC_TRY_COMPILE([#include <sys/types.h>
+-                    #include <linux/videodev.h>],,v4l_ok=yes,v4l_ok=no)
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
++                    #include <linux/videodev.h>]], [[]])],[v4l_ok=yes],[v4l_ok=no])
+     if test "x$v4l_ok" = "xyes"; then
+       AC_DEFINE(HAVE_V4L_1,,have video4linux)
+     fi
+     AC_MSG_RESULT($v4l_ok)
+ 
+     AC_MSG_CHECKING(for video4linux version 2)
+-    AC_TRY_COMPILE([#include <sys/types.h>
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
+                     #include <linux/videodev.h>
+-                    #include <linux/videodev2.h>],,v4l2_ok=yes,v4l2_ok=no)
++                    #include <linux/videodev2.h>]], [[]])],[v4l2_ok=yes],[v4l2_ok=no])
+     if test "x$v4l2_ok" = "xyes"; then
+       AC_DEFINE(HAVE_V4L_2,,have video4linux version 2)
++      PKG_CHECK_MODULES([LIBV4L2], [libv4l2] , [ 
++        have_libv4l2=yes
++        AC_DEFINE(HAVE_LIBV4L2,,have video4linux version 2)
++      ], [
++        have_libv4l2=no
++      ])
+     fi
+     AC_MSG_RESULT($v4l2_ok)
+ 
+@@ -976,7 +990,7 @@ dnl ------------------------------------
+ dnl Possibility to link against an external ffmpeg 
+ dnl rather than the included one
+ 
+-AC_ARG_WITH([external-ffmpeg], AC_HELP_STRING([--with-external-ffmpeg], [Use external ffmpeg library]))
++AC_ARG_WITH([external-ffmpeg], AS_HELP_STRING([--with-external-ffmpeg],[Use external ffmpeg library]))
+ 
+ dnl ---------------------------------------------------------------------
+ dnl Checks for Xpm libraries.
+@@ -1060,7 +1074,7 @@ AC_SUBST(LIBLIRC)
+ LIBLIRC=""
+ if test "$enable_lirc" != "no"; then
+    AC_MSG_CHECKING(for lirc header files)
+-   AC_TRY_COMPILE([#include <lirc/lirc_client.h>],,lirc_h_ok=yes,lirc_h_ok=no)
++   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <lirc/lirc_client.h>]], [[]])],[lirc_h_ok=yes],[lirc_h_ok=no])
+    AC_MSG_RESULT($lirc_h_ok)
+    if test "$lirc_h_ok" = "yes"; then
+      AC_CHECK_LIB(lirc_client, lirc_init,
+@@ -1087,27 +1101,27 @@ if test "$host_syst" = linux -a "$enable
+ 
+       asoundlib="none"
+       AC_MSG_CHECKING(for alsa 0.9.x or 1.0.x with alsa/asoundlib.h)
+-      AC_TRY_RUN([
++      AC_RUN_IFELSE([AC_LANG_SOURCE([[
+       #include <alsa/asoundlib.h>
+       int main(void) { return (!((SND_LIB_MAJOR==0 && SND_LIB_MINOR==9) || (SND_LIB_MAJOR == 1))); }
+-      ],[
++      ]])],[
+       AC_DEFINE(HAVE_ALSA,, Alsa sound library (only 0.9.x and 1.0.x are supported))
+       AC_DEFINE(HAVE_ALSA_ASOUNDLIB_H,, Alsa headers are in alsa)
+       asoundlib="alsa"
+       AC_MSG_RESULT(yes)
+-      ], AC_MSG_RESULT(no))
++      ],[AC_MSG_RESULT(no)],[])
+ 
+       if test "$asoundlib" != "alsa"; then
+         AC_MSG_CHECKING(for alsa 0.9.x or 1.0.x with sys/asoundlib.h)
+-        AC_TRY_RUN([
++        AC_RUN_IFELSE([AC_LANG_SOURCE([[
+         #include <sys/asoundlib.h>
+         int main(void) { return (!((SND_LIB_MAJOR==0 && SND_LIB_MINOR==9) || (SND_LIB_MAJOR == 1))); }
+-        ],[
++        ]])],[
+         AC_DEFINE(HAVE_ALSA,, Alsa sound library (only 0.9.x and 1.0.x are supported))
+         AC_DEFINE(HAVE_SYS_ASOUNDLIB_H,, Alsa headers are in sys)
+         asoundlib="sys"
+         AC_MSG_RESULT(yes)
+-        ], AC_MSG_RESULT(no))
++        ],[AC_MSG_RESULT(no)],[])
+       fi
+ 
+       if test "$asoundlib" = "none"; then
+@@ -1268,13 +1282,12 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	dnl Checks for libavcodec (ffmpeg) headers
+ 
+ 	AC_MSG_CHECKING(for libavcodec (ffmpeg) header files)
+-	AC_TRY_COMPILE([
++	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	#include <ffmpeg/avcodec.h>
+-	],
+-	[
++	]], [[
+ 	AVCodec *codec;
+ 	AVCodecContext codec_context;
+-	], libavcodec_header_ok=yes, libavcodec_header_ok=no)
++	]])],[libavcodec_header_ok=yes],[libavcodec_header_ok=no])
+ 	AC_MSG_RESULT($libavcodec_header_ok)
+ 	if test x"$libavcodec_header_ok" = xno; then
+ 		echo "*** Could not find libavcodec (ffmpeg) header files ***"
+@@ -1284,12 +1297,12 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	dnl Checks for libavformat (ffmpeg) headers
+ 
+ 	     AC_MSG_CHECKING(for libavformat (ffmpeg) header files)
+-	     AC_TRY_COMPILE([
++	     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	     #include <ffmpeg/avformat.h>
+ 	     #if LIBAVFORMAT_BUILD <= 4608
+ 	     #error "libavformat too old"
+ 	     #endif
+-	     ],, libavformat_header_ok=yes, libavformat_header_ok=no)
++	     ]], [[]])],[libavformat_header_ok=yes],[libavformat_header_ok=no])
+ 	     AC_MSG_RESULT($libavformat_header_ok)
+ 	     if test "x$libavformat_header_ok" = "xno"; then
+ 		echo "*** Could not find libavformat (ffmpeg) header files ***"
+@@ -1323,11 +1336,9 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	           AC_MSG_CHECKING(for ffmpeg x264 support)
+ 	           saved_LIBS="$LIBS"
+ 	           LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	           AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&x264_encoder)],
+-	                       ffmpeg_x264=yes,ffmpeg_x264=no)
++	           AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&x264_encoder)]])],[ffmpeg_x264=yes],[ffmpeg_x264=no])
+ 	           if test x"$ffmpeg_x264" == x"no"; then
+-	             AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&libx264_encoder)],
+-	                         ffmpeg_x264=yes,ffmpeg_x264=no)
++	             AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&libx264_encoder)]])],[ffmpeg_x264=yes],[ffmpeg_x264=no])
+                    fi
+ 	           LIBS="$saved_LIBS"
+ 	           if test x"$ffmpeg_x264" != x"no"; then
+@@ -1342,11 +1353,9 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	           AC_MSG_CHECKING(for ffmpeg xvid support)
+ 	           saved_LIBS="$LIBS"
+ 	           LIBS="$saved_LIBS $FFMPEG_LIBS" 	 
+-	           AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&xvid_encoder)],
+-	                       ffmpeg_xvid=yes,ffmpeg_xvid=no)
++	           AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&xvid_encoder)]])],[ffmpeg_xvid=yes],[ffmpeg_xvid=no])
+ 	           if test x"$ffmpeg_xvid" == x"no"; then
+-	             AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&libxvid_encoder)],
+-	                         ffmpeg_xvid=yes,ffmpeg_xvid=no)
++	             AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&libxvid_encoder)]])],[ffmpeg_xvid=yes],[ffmpeg_xvid=no])
+                    fi
+ 	           LIBS="$saved_LIBS"
+ 	           if test x"$ffmpeg_xvid" != x"no"; then
+@@ -1361,11 +1370,9 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	           AC_MSG_CHECKING(for ffmpeg mp3lame support)
+ 	           saved_LIBS="$LIBS"
+ 	           LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	           AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&mp3lame_encoder)],
+-	                       ffmpeg_mp3=yes,ffmpeg_mp3=no)
++	           AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&mp3lame_encoder)]])],[ffmpeg_mp3=yes],[ffmpeg_mp3=no])
+ 	           if test x"$ffmpeg_mp3" == x"no"; then
+-	             AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&libmp3lame_encoder)],
+-	                         ffmpeg_mp3=yes,ffmpeg_mp3=no)
++	             AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&libmp3lame_encoder)]])],[ffmpeg_mp3=yes],[ffmpeg_mp3=no])
+                    fi
+ 	           LIBS="$saved_LIBS"
+ 	           if test x"$ffmpeg_mp3" != x"no"; then
+@@ -1380,11 +1387,9 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	            AC_MSG_CHECKING(for ffmpeg aac support)
+ 	            saved_LIBS="$LIBS"
+ 	            LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	            AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&faac_encoder)],
+-	               ffmpeg_aac=yes,ffmpeg_aac=no)
++	            AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&faac_encoder)]])],[ffmpeg_aac=yes],[ffmpeg_aac=no])
+ 	            if test x"$ffmpeg_aac" == x"no"; then 
+-	              AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&libfaac_encoder)],
+-	                 ffmpeg_aac=yes,ffmpeg_aac=no)
++	              AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&libfaac_encoder)]])],[ffmpeg_aac=yes],[ffmpeg_aac=no])
+                     fi
+ 	            LIBS="$saved_LIBS"
+ 	            if test x"$ffmpeg_aac" != x"no"; then 	 
+@@ -1399,8 +1404,7 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	            AC_MSG_CHECKING(for ffmpeg ac3 support)
+ 	            saved_LIBS="$LIBS"
+ 	            LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	            AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&ac3_encoder)],
+-	                        ffmpeg_ac3=yes,ffmpeg_ac3=no)
++	            AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&ac3_encoder)]])],[ffmpeg_ac3=yes],[ffmpeg_ac3=no])
+ 	            LIBS="$saved_LIBS"
+ 	            if test x"$ffmpeg_ac3" != x"no"; then
+ 	              AC_DEFINE(HAVE_FFMPEG_AC3, 1, ffmpeg is build with the ac3 support)
+@@ -1414,11 +1418,9 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	            AC_MSG_CHECKING(for ffmpeg amr_nb support)
+ 	            saved_LIBS="$LIBS"
+ 	            LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	            AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&amr_nb_encoder)],
+-	                        ffmpeg_amr_nb=yes,ffmpeg_amr_nb=no)
++	            AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&amr_nb_encoder)]])],[ffmpeg_amr_nb=yes],[ffmpeg_amr_nb=no])
+ 	            if test x"$ffmpeg_amr_nb" == x"no"; then
+-	              AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&libamr_nb_encoder)],
+-	                          ffmpeg_amr_nb=yes,ffmpeg_amr_nb=no)
++	              AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&libamr_nb_encoder)]])],[ffmpeg_amr_nb=yes],[ffmpeg_amr_nb=no])
+ 	            fi
+ 	            LIBS="$saved_LIBS"
+ 	            if test x"$ffmpeg_amr_nb" != x"no"; then
+@@ -1433,11 +1435,9 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 	            AC_MSG_CHECKING(for ffmpeg amr_wb support)
+ 	            saved_LIBS="$LIBS"
+ 	            LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	            AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&amr_wb_encoder)],
+-	                        ffmpeg_amr_wb=yes,ffmpeg_amr_wb=no)
++	            AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&amr_wb_encoder)]])],[ffmpeg_amr_wb=yes],[ffmpeg_amr_wb=no])
+ 	            if test x"$ffmpeg_amr_wb" == x"no"; then
+-	              AC_TRY_LINK([#include <ffmpeg/avformat.h>],[register_avcodec(&libamr_wb_encoder)],
+-	                          ffmpeg_amr_wb=yes,ffmpeg_amr_wb=no)
++	              AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avformat.h>]], [[register_avcodec(&libamr_wb_encoder)]])],[ffmpeg_amr_wb=yes],[ffmpeg_amr_wb=no])
+ 	            fi
+ 	            LIBS="$saved_LIBS"
+ 	            if test x"$ffmpeg_amr_wb" != x"no"; then
+@@ -1453,9 +1453,7 @@ if test "x$enable_ffmpeg" != "xno"; then
+ 		    AC_MSG_CHECKING(for ffmpeg swscale support)
+ 	            saved_LIBS="$LIBS"
+ 	            LIBS="$saved_LIBS $FFMPEG_LIBS"
+-	            AC_TRY_LINK([#include <ffmpeg/avcodec.h>],
+-				[img_convert(0, 0, 0,0,0,0)],
+-	                        enable_ffmpeg_swscale=no,enable_ffmpeg_swscale=yes)
++	            AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ffmpeg/avcodec.h>]], [[img_convert(0, 0, 0,0,0,0)]])],[enable_ffmpeg_swscale=no],[enable_ffmpeg_swscale=yes])
+ 	            LIBS="$saved_LIBS"
+ 		    AC_MSG_RESULT($enable_ffmpeg_swscale)
+ 
+@@ -1488,7 +1486,7 @@ dnl find if .align arg is power-of-two o
+ 
+ asmalign_pot="unknown"
+ 
+-AC_TRY_COMPILE([asm (".align 3"); ], ,asmalign_pot=yes,asmalign_pot=no)
++AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[asm (".align 3"); ]], [[]])],[asmalign_pot=yes],[asmalign_pot=no])
+ 
+    if test x"$asmalign_pot" == xyes; then
+        asmalign_out=`echo \".align\" '#ZEROBITS' \"\\\n\\\t\"`
+@@ -1506,16 +1504,15 @@ dnl ------------------------------------
+ dnl Checks for XviD headers
+ 
+     AC_MSG_CHECKING(for XviD header files)
+-    AC_TRY_COMPILE([
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+     #include <xvid.h>
+-    ],
+-    [
++    ]], [[
+     #ifdef XVID_API
+     xvid_gbl_init_t xinit;
+     #else
+     XVID_INIT_PARAM *xinit;
+     #endif
+-    ], xvid_header_ok=yes, xvid_header_ok=no)
++    ]])],[xvid_header_ok=yes],[xvid_header_ok=no])
+ 
+     AC_MSG_RESULT($xvid_header_ok)
+     if test x"$xvid_header_ok" = xno; then
+@@ -1527,7 +1524,7 @@ dnl ------------------------------------
+ dnl Checks for XviD API version
+ 
+     AC_MSG_CHECKING(if XviD API version is 2.1 or 4.0 or 4.1)
+-    AC_TRY_RUN([
++    AC_RUN_IFELSE([AC_LANG_SOURCE([[
+     #include <xvid.h>
+     int main() {
+     #ifdef API_VERSION
+@@ -1537,7 +1534,7 @@ dnl Checks for XviD API version
+     return 1;
+     #endif
+     #elif defined(XVID_API)
+-    #if XVID_API == XVID_MAKE_API(4, 0) || XVID_API == XVID_MAKE_API(4, 1)
++    #if XVID_API == XVID_MAKE_API(4, 0) || XVID_API == XVID_MAKE_API(4, 1) || XVID_API == XVID_MAKE_API(4, 2)
+     return 0;    
+     #else
+     return 1;
+@@ -1545,13 +1542,11 @@ dnl Checks for XviD API version
+     #else return 1;
+     #endif
+     }
+-    ],
+-    [
++    ]])],[
+     xvid_api_version="yes"
+-    ],
+-    [
++    ],[
+     xvid_api_version="no"
+-    ])
++    ],[])
+ 
+     AC_MSG_RESULT($xvid_api_version)
+     if test "$xvid_api_version" = "no"; then
+@@ -1583,14 +1578,13 @@ dnl Checks for ogg / vorbis / theora hea
+ 
+ if test "$enable_ogg" != "no"; then
+     AC_MSG_CHECKING(for ogg-vorbis-theora header files)
+-    AC_TRY_COMPILE([
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 
+     #include <theora/theora.h>
+     #include <vorbis/codec.h>
+     #include <vorbis/vorbisenc.h>
+-    ],
+-    [
+-    ], ogg_header_ok=yes, ogg_header_ok=no)
++    ]], [[
++    ]])],[ogg_header_ok=yes],[ogg_header_ok=no])
+ 
+     AC_MSG_RESULT($ogg_header_ok)
+     if test x"$ogg_header_ok" = xno; then
+@@ -1667,10 +1661,9 @@ dnl Checks for divx4linux headers
+ 
+ if test "$enable_divx4linux" != "no"; then
+     AC_MSG_CHECKING(for divx4linux header files)
+-    AC_TRY_COMPILE([
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+     #include <encore2.h>
+-    ],
+-    [
++    ]], [[
+     #if ENCORE_VERSION >= 20021024
+     DivXBitmapInfoHeader infos;
+     SETTINGS param;
+@@ -1679,7 +1672,7 @@ if test "$enable_divx4linux" != "no"; th
+     #endif
+     ENC_FRAME fr;
+     ENC_RESULT res;
+-    ], divx_header_ok=yes, divx_header_ok=no)
++    ]])],[divx_header_ok=yes],[divx_header_ok=no])
+ 
+     AC_MSG_RESULT($divx_header_ok)
+     if test x"$divx_header_ok" = xno; then
+@@ -1709,12 +1702,11 @@ dnl ------------------------------------
+ dnl Checks for lame headers
+ 
+         AC_MSG_CHECKING(for lame header files)
+-        AC_TRY_COMPILE([
++        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+         #include <lame/lame.h>
+-        ],
+-        [
++        ]], [[
+         lame_global_flags *gfp;
+-        ], lame_header_ok=yes, lame_header_ok=no)
++        ]])],[lame_header_ok=yes],[lame_header_ok=no])
+ 
+         AC_MSG_RESULT($lame_header_ok)
+         if test x"$lame_header_ok" = xno; then
+@@ -1793,7 +1785,7 @@ fi
+ 
+ if test "$enable_zvbi" != "no"; then
+     AC_MSG_CHECKING(for zvbi header files)
+-    AC_TRY_COMPILE([#include <libzvbi.h>],,zvbi_h_ok=yes,zvbi_h_ok=no)
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libzvbi.h>]], [[]])],[zvbi_h_ok=yes],[zvbi_h_ok=no])
+     AC_MSG_RESULT($zvbi_h_ok)
+     if test "$zvbi_h_ok" = "yes"; then
+        CFLAGS_sau="$CFLAGS"
+@@ -1817,12 +1809,11 @@ if test "x$with_external_ffmpeg" != "xye
+ 
+   if test "$enable_faac" != "no" -a "$enable_ffmpeg" != "no"; then
+      AC_MSG_CHECKING(for faac header files)
+-     AC_TRY_COMPILE([
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+       #include <stdlib.h>
+       #include <faac.h>
+-      ],
+-      [
+-      ],faac_h_ok=yes,faac_h_ok=no)
++      ]], [[
++      ]])],[faac_h_ok=yes],[faac_h_ok=no])
+      AC_MSG_RESULT($faac_h_ok)
+ 
+      if test "$faac_h_ok" == yes; then
+@@ -1844,14 +1835,13 @@ if test "x$with_external_ffmpeg" != "xye
+ 
+   if test "$enable_x264" != "no" -a "$enable_ffmpeg" != "no"; then
+      AC_MSG_CHECKING(for x264 header files)
+-     AC_TRY_COMPILE([
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+       #include <stdint.h>
+       #include <inttypes.h>
+       #include <x264.h>
+-      ],
+-      [
++      ]], [[
+       x264_t* try;
+-      ], x264_h_ok=yes, x264_h_ok=no)
++      ]])],[x264_h_ok=yes],[x264_h_ok=no])
+      AC_MSG_RESULT($x264_h_ok)
+ 
+      if test "$x264_h_ok" == "yes"; then
+@@ -1875,21 +1865,20 @@ if test "x$with_external_ffmpeg" != "xye
+      dnl ^^ NO NO!! the kernel headers used to compile MUST be the same than
+      dnl the ones which have been used to compile the current glibc !!!
+      dnl see http://lkml.org/lkml/2000/7/27/10
+-     AC_TRY_COMPILE([
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	#include <linux/dvb/frontend.h>
+-     ],,dvb_drivers_ok=yes,dvb_drivers_ok=no)
++     ]], [[]])],[dvb_drivers_ok=yes],[dvb_drivers_ok=no])
+      AC_MSG_RESULT($dvb_drivers_ok)
+ 
+      dnl check for LIBSDL headers
+      AC_MSG_CHECKING(for libsdl header files)
+-     AC_TRY_COMPILE([
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	#include <SDL/SDL.h>
+ 	#include <SDL/SDL_thread.h>
+-     ],
+-     [
++     ]], [[
+      SDL_mutex *mutex;
+      SDL_cond *cond;
+-     ], libsdl_header_ok=yes, libsdl_header_ok=no)
++     ]])],[libsdl_header_ok=yes],[libsdl_header_ok=no])
+      AC_MSG_RESULT($libsdl_header_ok)
+ 
+      if test "$libsdl_header_ok" != "no"; then
+@@ -1906,13 +1895,12 @@ if test "x$with_external_ffmpeg" != "xye
+ 
+      dnl check for LIBCURL headers
+      AC_MSG_CHECKING(for libcurl header files)
+-     AC_TRY_COMPILE([
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	#include <curl/curl.h>
+-     ],
+-     [
++     ]], [[
+       CURL *curl;
+       CURLcode res;
+-     ], libcurl_header_ok=yes, libcurl_header_ok=no)
++     ]])],[libcurl_header_ok=yes],[libcurl_header_ok=no])
+      AC_MSG_RESULT($libcurl_header_ok)
+ 
+      if test "$libcurl_header_ok" != "no"; then
+@@ -1944,7 +1932,7 @@ dnl ------------------------------------
+ dnl Check for DBUS
+ 
+ DBUS_REQS_MIN=0.35
+-AC_ARG_WITH(dbus, AC_HELP_STRING([--with-dbus], [Use DBUS support]),, with_dbus=auto)
++AC_ARG_WITH(dbus, AS_HELP_STRING([--with-dbus],[Use DBUS support]),, with_dbus=auto)
+ 
+ if test "x$with_dbus" != "xno"; then
+ 	PKG_CHECK_MODULES(DBUS, dbus-glib-1 >= $DBUS_REQS_MIN, enable_dbus=yes, enable_dbus=no)
+@@ -2230,13 +2218,10 @@ dnl FFmpeg inside
+ 
+        dnl ---------------------------------------------------------------
+        AC_MSG_CHECKING([for socklen_t])
+-       AC_TRY_COMPILE([
++       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+         #include <sys/types.h>
+-        #include <sys/socket.h>],
+-         [socklen_t x;],
+-         [AC_MSG_RESULT([yes]) AC_DEFINE(HAVE_SOCKLEN_T,1,FFMPEG) echo "HAVE_SOCKLEN_T=yes" >> config.mak.in],
+-         [AC_MSG_RESULT([no]) ]
+-       )
++        #include <sys/socket.h>]], [[socklen_t x;]])],[AC_MSG_RESULT([yes]) AC_DEFINE(HAVE_SOCKLEN_T,1,FFMPEG) echo "HAVE_SOCKLEN_T=yes" >> config.mak.in],[AC_MSG_RESULT([no]) 
++       ])
+ 
+        LIBS="$saved_LIBS"
+ 
+@@ -3398,4 +3383,5 @@ fi
+ dnl ---------------------------------------------------------------------
+ dnl Writing results
+ 
+-AC_OUTPUT(config.mak Makefile alevt/Makefile src/Makefile font/Makefile xdtv.spec xdtv-mandriva.spec xdtv-fedora.spec xdtv-suse.spec xdtv_scan.sh xdtv_record.sh debian/xdtv.files slackware/build.conf XdTV.ad man/Makefile src/dvb/Makefile)
++AC_CONFIG_FILES([config.mak Makefile alevt/Makefile src/Makefile font/Makefile xdtv.spec xdtv-mandriva.spec xdtv-fedora.spec xdtv-suse.spec xdtv_scan.sh xdtv_record.sh debian/xdtv.files slackware/build.conf XdTV.ad man/Makefile src/dvb/Makefile])
++AC_OUTPUT
+diff -up xdtv-2.4.1cvs15/src/grab-v4l2.c.libv4l2 xdtv-2.4.1cvs15/src/grab-v4l2.c
+--- xdtv-2.4.1cvs15/src/grab-v4l2.c.libv4l2	2009-04-08 16:16:12.000000000 +0200
++++ xdtv-2.4.1cvs15/src/grab-v4l2.c	2009-04-08 16:16:12.000000000 +0200
+@@ -48,6 +48,18 @@
+ #include "colorspace.h"
+ #include "memcpy.h"
+ #include "blackborder.h"
++
++#ifdef HAVE_LIBV4L2 || 1
++#   include <libv4l2.h>
++#else
++#   define v4l2_fd_open(fd, flags) (fd)
++#   define v4l2_open open
++#   define v4l2_close close
++#   define v4l2_ioctl ioctl
++#   define v4l2_mmap mmap
++#   define v4l2_munmap munmap
++#endif
++
+ extern int x11_bigendian;
+ 
+ static int fmts_xaw_to_v4l2[MAX_VIDEO_FMT] = {
+@@ -171,14 +183,14 @@ static int grab_open(struct device_t *de
+   if (debug)
+     fprintf (stderr, "v4l2: open\n");
+   
+-  if (-1 == (bttvfd = open (device->video ? device->video : "/dev/video", O_RDWR)))
++  if (-1 == (bttvfd = v4l2_open (device->video ? device->video : "/dev/video", O_RDWR)))
+     {
+-      fprintf (stderr, "open %s: %s\n",
++      fprintf (stderr, "v4l2_open %s: %s\n",
+                device->video ? device->video : "/dev/video", strerror (errno));
+       goto err;
+     }
+   
+-  if (-1 == ioctl(bttvfd,VIDIOC_QUERYCAP,&drv.cap)) 
++  if (-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCAP,&drv.cap)) 
+     {
+       fprintf (stderr, "driver is not v4l2\n");
+       goto err;
+@@ -217,7 +229,7 @@ static int grab_open(struct device_t *de
+   for (drv.nfmts = 0; drv.nfmts < MAX_FORMAT; drv.nfmts++) {
+     drv.fmt[drv.nfmts].index = drv.nfmts;
+     drv.fmt[drv.nfmts].type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+-    if (-1 == ioctl(bttvfd, VIDIOC_ENUM_FMT, &drv.fmt[drv.nfmts]))
++    if (-1 == v4l2_ioctl(bttvfd, VIDIOC_ENUM_FMT, &drv.fmt[drv.nfmts]))
+       break;
+   }
+   
+@@ -225,22 +237,22 @@ static int grab_open(struct device_t *de
+   ioctl(bttvfd,VIDIOC_G_PARM,&drv.streamparm);
+   
+   drv.brightness.id = V4L2_CID_BRIGHTNESS;
+-  if(-1 == ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.brightness))
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.brightness))
+     drv.brightness.id = 0;
+   drv.contrast.id = V4L2_CID_CONTRAST;
+-  if(-1 == ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.contrast))
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.contrast))
+     drv.contrast.id = 0;
+   drv.hue.id = V4L2_CID_HUE;
+-  if(-1 == ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.hue))
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.hue))
+     drv.hue.id = 0;
+   drv.saturation.id = V4L2_CID_SATURATION;
+-  if(-1 == ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.saturation))
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.saturation))
+     drv.saturation.id = 0;
+   drv.mute.id = V4L2_CID_AUDIO_MUTE;
+-  if(-1 == ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.mute))
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.mute))
+     drv.mute.id = 0;
+   drv.volume.id = V4L2_CID_AUDIO_VOLUME;
+-  if(-1 == ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.volume) ||
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_QUERYCTRL,&drv.volume) ||
+      drv.volume.minimum==drv.volume.maximum)
+     drv.volume.id = 0;
+   //exit(0);
+@@ -272,8 +284,8 @@ static int grab_open(struct device_t *de
+   }
+ 
+   /* frame buffer */
+-  if (-1 == ioctl (bttvfd, VIDIOC_G_FBUF, &ov_fbuf)) {
+-    perror ("ioctl VIDIOC_G_FBUF");
++  if (-1 == v4l2_ioctl (bttvfd, VIDIOC_G_FBUF, &ov_fbuf)) {
++    perror ("v4l2_ioctl VIDIOC_G_FBUF");
+     fprintf(stderr, "classical overlay is disabled");
+     ov_error=1;
+   } else {
+@@ -303,19 +315,19 @@ static int grab_open(struct device_t *de
+     gbformat.fmt.pix.pixelformat = drv.fmt[0].pixelformat;
+   gbformat.fmt.pix.width = 768;
+   gbformat.fmt.pix.height = 576;
+-  if(-1 == ioctl(bttvfd,VIDIOC_S_FMT, &gbformat))
+-    perror("ioctl VIDIOC_S_FMT");
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_S_FMT, &gbformat))
++    perror("v4l2_ioctl VIDIOC_S_FMT");
+   gbformat.fmt.pix.pixelformat = -1; // to force changeformat...
+ 
+   return 0;
+   
+  err:
+   if (bttvfd != -1) {
+-      close (bttvfd);
++      v4l2_close (bttvfd);
+       bttvfd = -1;
+   }
+   if (vbifd != -1)  {
+-    close (vbifd);
++    v4l2_close (vbifd);
+     vbifd = -1;
+   }
+   if(gb2!=NULL) free(gb2);
+@@ -331,9 +343,9 @@ grab_close ()
+     return 0;
+   grab_audio (1, -1, NULL);
+   if(grab) stop_capture();
+-  close(bttvfd);
++  v4l2_close(bttvfd);
+   bttvfd = -1;
+-  close(vbifd);
++  v4l2_close(vbifd);
+   vbifd = -1;
+   free(grab_v4l2.norms); grab_v4l2.norms = NULL;
+   free(grab_v4l2.inputs); grab_v4l2.inputs = NULL;
+@@ -355,8 +367,8 @@ grab_overlay (int x, int y, int width, i
+     {
+       if (debug)
+         fprintf (stderr, "v4l2: overlay off\n");
+-      if( -1 == ioctl (bttvfd, VIDIOC_OVERLAY, &zero))
+-	perror("ioctl VIDIOC_OVERLAY");
++      if( -1 == v4l2_ioctl (bttvfd, VIDIOC_OVERLAY, &zero))
++	perror("v4l2_ioctl VIDIOC_OVERLAY");
+       overlay = 0;
+       changeformat(&gbformat);
+       return 0;
+@@ -385,14 +397,14 @@ grab_overlay (int x, int y, int width, i
+ 	}
+   }
+   
+-  if(-1 == ioctl(bttvfd,VIDIOC_S_FMT, &win)) {
+-    perror("ioctl VIDIOC_S_FMT");
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_S_FMT, &win)) {
++    perror("v4l2_ioctl VIDIOC_S_FMT");
+     return -1;
+   }
+   
+   if(!overlay) {
+-    if( -1 == ioctl (bttvfd, VIDIOC_OVERLAY, &one)) {
+-      perror("ioctl VIDIOC_OVERLAY");
++    if( -1 == v4l2_ioctl (bttvfd, VIDIOC_OVERLAY, &one)) {
++      perror("v4l2_ioctl VIDIOC_OVERLAY");
+       return -1;
+     }
+     overlay = 1;
+@@ -409,12 +421,12 @@ grab_queue (struct v4l2_buffer *gb)
+     fprintf (stderr, "g%d", gb->index);
+ 
+   if(overlay) {fprintf(stderr,"BIG PB\n");exit(1);}
+-  if (-1 == ioctl (bttvfd, VIDIOC_QBUF, gb))
++  if (-1 == v4l2_ioctl (bttvfd, VIDIOC_QBUF, gb))
+     {
+       if (errno == EAGAIN)
+         fprintf (stderr, "grabber chip can't sync (no station tuned in?)\n");
+       else
+-        fprintf (stderr, "ioctl VIDIOC_QBUF(%d): %s\n",
++        fprintf (stderr, "v4l2_ioctl VIDIOC_QBUF(%d): %s\n",
+                  gb->index, strerror (errno));
+       return -1;
+     }
+@@ -452,9 +464,9 @@ grab_wait (struct v4l2_buffer  *gb)
+     return -1;
+   }
+ 
+-  if (-1 == ioctl (bttvfd, VIDIOC_DQBUF, gb))
++  if (-1 == v4l2_ioctl (bttvfd, VIDIOC_DQBUF, gb))
+     {
+-      perror ("ioctl VIDIOC_DQBUF");
++      perror ("v4l2_ioctl VIDIOC_DQBUF");
+       return -1;
+     }
+   
+@@ -517,12 +529,12 @@ static int stop_capture(void) {
+   while (gb_grab!=gb_sync)
+     if(grab_wait(&gb2[imgw])<0) {reset(); break;}
+   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+-  if(-1 == ioctl(bttvfd,VIDIOC_STREAMOFF,&type)) {
+-    perror("ioctl VIDIOC_STREAMOFF");
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_STREAMOFF,&type)) {
++    perror("v4l2_ioctl VIDIOC_STREAMOFF");
+     return -1;
+   }
+   for(i = 0; i < nbufs; i++)
+-    if(maps[i]!=NULL) munmap(maps[i],gb2[i].length);
++    if(maps[i]!=NULL) v4l2_munmap(maps[i],gb2[i].length);
+   free(maps);free(gb2);
+   maps=NULL; gb2=NULL;
+   grab = 0;
+@@ -536,8 +548,8 @@ static int start_capture(void) {
+   reqbufs.count  = nbufs_default;
+   reqbufs.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+   reqbufs.memory = V4L2_MEMORY_MMAP;
+-  if (-1 == ioctl(bttvfd, VIDIOC_REQBUFS, &reqbufs)) {
+-    perror("ioctl VIDIOC_REQBUFS");
++  if (-1 == v4l2_ioctl(bttvfd, VIDIOC_REQBUFS, &reqbufs)) {
++    perror("v4l2_ioctl VIDIOC_REQBUFS");
+     return -1;
+   }
+   nbufs = reqbufs.count;
+@@ -550,22 +562,22 @@ static int start_capture(void) {
+     gb2[i].index  = i;
+     gb2[i].type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+     gb2[i].memory = V4L2_MEMORY_MMAP;
+-    if (-1 == ioctl(bttvfd, VIDIOC_QUERYBUF, &gb2[i], 0)) {
+-      perror("ioctl VIDIOC_QUERYBUF");
++    if (-1 == v4l2_ioctl(bttvfd, VIDIOC_QUERYBUF, &gb2[i], 0)) {
++      perror("v4l2_ioctl VIDIOC_QUERYBUF");
+       return -1;
+     }
+-    maps[i] = mmap(NULL, gb2[i].length, PROT_READ | PROT_WRITE, MAP_SHARED,
++    maps[i] = v4l2_mmap(NULL, gb2[i].length, PROT_READ | PROT_WRITE, MAP_SHARED,
+ 		   bttvfd, gb2[i].m.offset);
+     if(maps[i] == MAP_FAILED) {
+-      perror("mmap");
++      perror("v4l2_mmap");
+       return -1;
+     }
+   }
+ 
+   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+ 
+-  if(-1 == ioctl(bttvfd,VIDIOC_STREAMON,&type)) {
+-    perror("ioctl VIDIOC_STREAMON");
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_STREAMON,&type)) {
++    perror("v4l2_ioctl VIDIOC_STREAMON");
+     return -1;
+   }
+   grab = 1;
+@@ -587,8 +599,8 @@ static int changeformat(struct v4l2_form
+ 
+   if(fmt->fmt.pix.pixelformat==-1) return -1;
+ 
+-  if(-1 == ioctl(bttvfd,VIDIOC_S_FMT, fmt)) {
+-    perror("ioctl VIDIOC_S_FMT");
++  if(-1 == v4l2_ioctl(bttvfd,VIDIOC_S_FMT, fmt)) {
++    perror("v4l2_ioctl VIDIOC_S_FMT");
+     return -1;
+   }
+   if(!overlay)
+@@ -643,7 +655,7 @@ grab_tune (const struct CHANNEL* chan)
+   memset(&f,0,sizeof(f));
+   f.type = V4L2_TUNER_ANALOG_TV;
+   f.frequency = chan->freq;
+-  if(ioctl(bttvfd, VIDIOC_S_FREQUENCY, &f) == -1)
++  if(v4l2_ioctl(bttvfd, VIDIOC_S_FREQUENCY, &f) == -1)
+     perror("VIDIOC_S_FREQUENCY");
+   return 0;
+ }
+@@ -654,7 +666,7 @@ grab_tuned ()
+   struct v4l2_tuner tuner;
+   
+   memset(&tuner,0,sizeof(tuner));
+-  if (-1 == ioctl(bttvfd,VIDIOC_G_TUNER,&tuner))
++  if (-1 == v4l2_ioctl(bttvfd,VIDIOC_G_TUNER,&tuner))
+     return 0;
+   return tuner.signal ? 1 : 0;
+ }
+@@ -666,8 +678,8 @@ grab_input (int input, int norm)
+   if (-1 != input) {
+     if (debug)
+       fprintf (stderr, "v4l2: input: %d\n", input);
+-    if( -1 == ioctl (bttvfd, VIDIOC_S_INPUT, &drv.inp[input].index))
+-      perror("ioctl VIDIOC_S_INPUT");
++    if( -1 == v4l2_ioctl (bttvfd, VIDIOC_S_INPUT, &drv.inp[input].index))
++      perror("v4l2_ioctl VIDIOC_S_INPUT");
+   }
+   if (-1 != norm)
+     {
+@@ -677,8 +689,8 @@ grab_input (int input, int norm)
+ 	int overlay2 = overlay;
+ 	if(overlay2) video_overlay (NULL);
+ 	if(grab) stop_capture();
+-	if( -1 == ioctl(bttvfd, VIDIOC_S_STD, &drv.std[norm].id)) {
+-	  perror("ioctl VIDIOC_S_STD");
++	if( -1 == v4l2_ioctl(bttvfd, VIDIOC_S_STD, &drv.std[norm].id)) {
++	  perror("v4l2_ioctl VIDIOC_S_STD");
+ 	  return -1;
+ 	}
+ 	if(overlay2)
+@@ -701,8 +713,8 @@ static inline int control(int x,struct v
+   if(ctrl->id == 0) return -1;
+   c.id = ctrl->id;
+   c.value = (float)x/65535*(ctrl->maximum-ctrl->minimum)+ctrl->minimum+0.5;
+-  if(-1 == ioctl(bttvfd, VIDIOC_S_CTRL, &c)) {
+-    perror("ioctl VIDIOC_S_CTRL");
++  if(-1 == v4l2_ioctl(bttvfd, VIDIOC_S_CTRL, &c)) {
++    perror("v4l2_ioctl VIDIOC_S_CTRL");
+     return -1;
+   }
+   return 0;
+@@ -726,18 +738,18 @@ grab_audio (int mute, int volume, int *m
+   if(mute !=-1 && drv.mute.id) {
+     c.id = V4L2_CID_AUDIO_MUTE;
+     c.value = mute;
+-    if(-1 == ioctl(bttvfd, VIDIOC_S_CTRL,&c))
++    if(-1 == v4l2_ioctl(bttvfd, VIDIOC_S_CTRL,&c))
+       perror("VIDIOC_S_CTRL, V4L2_CID_AUDIO_MUTE");
+   }
+   if(volume !=-1 && drv.volume.id) {
+     c.id = V4L2_CID_AUDIO_VOLUME;
+     c.value = volume;
+-    if(-1 == ioctl(bttvfd, VIDIOC_S_CTRL,&c))
++    if(-1 == v4l2_ioctl(bttvfd, VIDIOC_S_CTRL,&c))
+       perror("VIDIOC_S_CTRL, V4L2_CID_AUDIO_VOLUME");
+   }
+   if(mode) {
+     memset(&tuner,0,sizeof(tuner));
+-    if(-1 == ioctl(bttvfd,VIDIOC_G_TUNER,&tuner))
++    if(-1 == v4l2_ioctl(bttvfd,VIDIOC_G_TUNER,&tuner))
+       perror("VIDIOC_G_TUNER");
+     if(*mode) {
+       switch(*mode) {
+@@ -746,9 +758,9 @@ grab_audio (int mute, int volume, int *m
+       case 3: tuner.audmode = V4L2_TUNER_MODE_LANG1; break;
+       case 4: tuner.audmode = V4L2_TUNER_MODE_LANG2; break;
+       }
+-      if(-1 == ioctl(bttvfd,VIDIOC_S_TUNER,&tuner))
++      if(-1 == v4l2_ioctl(bttvfd,VIDIOC_S_TUNER,&tuner))
+ 	perror("VIDIOC_S_TUNER");
+-      if(-1 == ioctl(bttvfd,VIDIOC_G_TUNER,&tuner))
++      if(-1 == v4l2_ioctl(bttvfd,VIDIOC_G_TUNER,&tuner))
+ 	perror("VIDIOC_G_TUNER");
+     }
+     switch(tuner.audmode) {
+diff -up xdtv-2.4.1cvs15/src/Makefile.am.libv4l2 xdtv-2.4.1cvs15/src/Makefile.am
+--- xdtv-2.4.1cvs15/src/Makefile.am.libv4l2	2009-04-08 16:16:11.000000000 +0200
++++ xdtv-2.4.1cvs15/src/Makefile.am	2009-04-08 16:21:29.000000000 +0200
+@@ -154,7 +154,7 @@ AM_CFLAGS = @CFLAGPTHREAD@ @DEBUG@ -Wall
+ 
+ INCLUDES = -I../alevt -Idvb @FFMPEGINC@ @DBUS_CFLAGS@ 
+ 
+-xdtv_LDADD = ../alevt/libalevt.a @FFMPEGLINK@ @DVBLINK@ @X_LIBS@ @LIBXAW@ @LIBXT@ @X_PRE_LIBS@ -lX11 @LIBXMU@ @LIBXEXT@ @LIBXXF86DGA@ @LIBXXF86VM@ @LIBXV@ @LIBXDPMS@ @LIBJPEG@ @LIBASOUND@ @LIBXPM@ @LIBLIRC@ @LIBM@ @LIBASOUND@ @LIBPTHREAD@ @LIBDL@ @LIBDIVX@ @LIBLAME@ @LIBOGGALL@ @LIBXVID@  @LIBNET@ @LIBSEM@ @LIBOSS@ @XINERAMA_LIBS@ @LIBPNG@ @LIBSDL@ @LIBCURL@ @LIBFAAC@ @LIBX264@  @LIBZVBI@ @DBUS_LIBS@ @LIBAMRNB@ @LIBAMRWB@
++xdtv_LDADD = ../alevt/libalevt.a @FFMPEGLINK@ @DVBLINK@ @X_LIBS@ @LIBXAW@ @LIBXT@ @X_PRE_LIBS@ -lX11 @LIBXMU@ @LIBXEXT@ @LIBXXF86DGA@ @LIBXXF86VM@ @LIBXV@ @LIBXDPMS@ @LIBJPEG@ @LIBASOUND@ @LIBXPM@ @LIBLIRC@ @LIBM@ @LIBASOUND@ @LIBPTHREAD@ @LIBDL@ @LIBDIVX@ @LIBLAME@ @LIBOGGALL@ @LIBXVID@  @LIBNET@ @LIBSEM@ @LIBOSS@ @XINERAMA_LIBS@ @LIBPNG@ @LIBSDL@ @LIBCURL@ @LIBFAAC@ @LIBX264@  @LIBZVBI@ @DBUS_LIBS@ @LIBAMRNB@ @LIBAMRWB@ @LIBV4L2_LIBS@
+ 
+ xdtv_LDFLAGS = -rdynamic
+ 
+@@ -168,7 +168,7 @@ xdtv_wizard_LDADD = @X_LIBS@ @LIBXAW@ @L
+ install-exec-local: install-binPROGRAMS
+ 	chmod u+s $(DESTDIR)$(prefix)/bin/xdtv_v4l-conf
+ 
+-xdtv_scantv_LDADD = @LIBZVBI@ @LIBM@ @LIBPTHREAD@ @LIBCURL@
++xdtv_scantv_LDADD = @LIBZVBI@ @LIBM@ @LIBPTHREAD@ @LIBCURL@ @LIBV4L2_LIBS@
+ 
+ xdtv_scantv_SOURCES = xdtv_scantv.c grab-v4l.c grab-v4l2.c strtab.c colorspace.c frequencies.c translation.c
+ 
