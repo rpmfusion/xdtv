@@ -1,0 +1,89 @@
+diff -up xdtv-2.4.1cvs15/src/container-ffmpeg.c.noldffmpeg xdtv-2.4.1cvs15/src/container-ffmpeg.c
+--- xdtv-2.4.1cvs15/src/container-ffmpeg.c.noldffmpeg	2009-04-06 21:22:44.000000000 +0200
++++ xdtv-2.4.1cvs15/src/container-ffmpeg.c	2009-04-06 21:25:15.000000000 +0200
+@@ -23,16 +23,8 @@
+ 
+ #ifdef HAVE_FFMPEG
+ #if LIBAVCODEC_BUILD >= 4754
+-#if HAVE_LIBAVCODEC_AVCODEC_H
+ #include <libavcodec/avcodec.h>
+-#else
+-# include "avcodec.h"
+-#endif
+-#if HAVE_LIBAVFORMAT_AVFORMAT_H
+ #include <libavformat/avformat.h>
+-#else
+-# include "avformat.h"
+-#endif
+ 
+ static AVOutputFormat *av_output_fmt = NULL;
+ static AVFormatContext *oc=NULL; 
+diff -up xdtv-2.4.1cvs15/src/container.h.noldffmpeg xdtv-2.4.1cvs15/src/container.h
+--- xdtv-2.4.1cvs15/src/container.h.noldffmpeg	2009-04-06 21:20:21.000000000 +0200
++++ xdtv-2.4.1cvs15/src/container.h	2009-04-06 21:20:30.000000000 +0200
+@@ -14,11 +14,7 @@
+ #include "strtab.h"
+ 
+ #ifdef HAVE_FFMPEG
+-#if HAVE_LIBAVCODEC_AVCODEC_H
+ # include <libavcodec/avcodec.h>
+-#else
+-# include "avcodec.h"
+-#endif
+ #endif
+ 
+ enum {
+diff -up xdtv-2.4.1cvs15/src/divx.h.noldffmpeg xdtv-2.4.1cvs15/src/divx.h
+--- xdtv-2.4.1cvs15/src/divx.h.noldffmpeg	2009-04-06 21:21:07.000000000 +0200
++++ xdtv-2.4.1cvs15/src/divx.h	2009-04-06 21:21:28.000000000 +0200
+@@ -31,17 +31,9 @@
+ #include "container.h"
+ 
+ #ifdef HAVE_FFMPEG
+-#if HAVE_LIBAVCODEC_AVCODEC_H
+ #include <libavcodec/avcodec.h>
+-#else
+-# include "avcodec.h"
+-#endif
+ #if LIBAVCODEC_BUILD >= 4754
+-#if HAVE_LIBAVFORMAT_AVFORMAT_H
+ #include <libavformat/avformat.h>
+-#else
+-# include "avformat.h"
+-#endif
+ #endif
+ #endif
+ 
+diff -up xdtv-2.4.1cvs15/src/grab-dvb.c.noldffmpeg xdtv-2.4.1cvs15/src/grab-dvb.c
+--- xdtv-2.4.1cvs15/src/grab-dvb.c.noldffmpeg	2009-04-06 21:25:47.000000000 +0200
++++ xdtv-2.4.1cvs15/src/grab-dvb.c	2009-04-06 21:27:11.000000000 +0200
+@@ -44,29 +44,12 @@
+ #include "dvbtools.h"
+ #include "avilib.h"
+ 
+-#if HAVE_LIBAVCODEC_AVCODEC_H
+ # include <libavcodec/avcodec.h>
+ # include <libavcodec/audioconvert.h>
+-#else
+-# include "avcodec.h"
+-# include "audioconvert.h"
+-#endif
+-#if HAVE_LIBAVFORMAT_AVFORMAT_H
+ # include <libavformat/avformat.h>
+-#else
+-# include "avformat.h"
+-#endif
+-#if HAVE_LIBAVUTIL_COMMON_H
+ # include <libavutil/common.h>
+-#else
+-# include "common.h"
+-#endif
+ #ifdef HAVE_SWSCALE
+-#if HAVE_LIBSWSCALE_SWSCALE_H
+ # include <libswscale/swscale.h>
+-#else
+-# include "swscale.h"
+-#endif
+ #endif
+ 
+ /* because this part of code was moved from mem.h to internal.h */
