@@ -2,7 +2,7 @@
 
 Name:           xdtv
 Version:        2.4.1
-Release:        0.5%{?cvs}%{?dist}
+Release:        0.6%{?cvs}%{?dist}
 Summary:        Video4Linux Stream Capture Viewer & Recorder
 
 Group:          Applications/Multimedia
@@ -24,7 +24,7 @@ BuildRequires:  yasm xterm
 BuildRequires:  libtool automake17
 
 BuildRequires:  a52dec-devel
-BuildRequires:  faac-devel
+%{?_with_faac:BuildRequires: faac-devel}
 BuildRequires:  ffmpeg-devel
 BuildRequires:  lame-devel
 BuildRequires:  libogg-devel
@@ -111,7 +111,7 @@ sed -i.neXtaw -e 's|X11/Xaw|X11/neXtaw|g' src/*.{c,h} src/devicemanager/devicema
 
 #Patching to remove doubfully support for oldish ffmpeg
 %patch0 -p1 -b .noldffmpeg
-%patch1 -p1 -b .libv4l2
+#patch1 -p1 -b .libv4l2
 
 #Prevent internal ffmpeg to be used.
 rm -rf libav* libpostproc libswscale
@@ -269,6 +269,11 @@ fi
 
 
 %changelog
+* Wed Apr  8 2009 kwizart < kwizart at gmail.com > - 2.4.1-0.6cvs15
+- Rebuild for F-12
+- Conditionalize faac
+- Disable non upstreamed patches 
+
 * Wed Apr  8 2009 kwizart < kwizart at gmail.com > - 2.4.1-0.5cvs15
 - Add libv4l2 support
 - Fix xvidcore API 4.2
